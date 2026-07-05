@@ -1,4 +1,9 @@
+# Ignore pickle files by default (e.g. local experiments, scratch models)...
 *.pkl
+
+# ...but always keep the two production model files needed for deployment
+!fraud_model.pkl
+!fraud_vectorizer.pkl
 
 __pycache__/
 .ipynb_checkpoints/
