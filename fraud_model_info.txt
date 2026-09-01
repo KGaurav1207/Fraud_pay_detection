@@ -1,0 +1,2 @@
+Selected model : Logistic Regression
+F1 scores      : LR=0.9628  RF=0.9529  XGB=0.9600

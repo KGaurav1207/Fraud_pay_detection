@@ -11,7 +11,7 @@ The project combines a TF-IDF based text classification model with handcrafted r
 ## 📌 Features
 
 - Detects SMS as **FRAUD**, **SUSPICIOUS**, or **SAFE**
-- RandomForest classifier trained on TF-IDF text features + engineered numerical features
+- LogisticRegression classifier trained on TF-IDF text features + engineered numerical features
 - Rule-based engine for India-specific fraud patterns
 - Confidence score and detected-signal explanation for every prediction
 - Deployed live as an interactive web app via Streamlit Community Cloud
@@ -52,11 +52,11 @@ Three models were trained and compared using GridSearchCV (5-fold CV, optimized 
 
 | Model | Best Params | F1 Score |
 |--------|----------|----------|
-| Logistic Regression | `C=100` | 0.9969 |
-| **Random Forest** ✅ | `n_estimators=100, max_depth=None` | **0.9990** |
-| XGBoost | `n_estimators=300, max_depth=6, learning_rate=0.1` | 0.9918 |
+| **Logistic Regression** ✅ | `C=100` | **0.9628** |
+| XGBoost | `n_estimators=300, max_depth=6, learning_rate=0.1` | 0.9570 |
+| Random Forest | `n_estimators=100, max_depth=None` | 0.9529 |
 
-**RandomForestClassifier** was selected as the final deployed model based on the highest validation F1 score.
+**LogisticRegression** was selected as the final deployed model based on the highest validation F1 score.
 
 ---
 
@@ -98,24 +98,22 @@ The rule engine's signals combine with the ML prediction in a decision layer tha
 
 ## 📈 Model Performance
 
-Evaluated on a held-out test set (1,938 messages, stratified 80/20 split, upsampling applied only to the training set to avoid leakage).
+Evaluated on a held-out test set (1,147 messages, stratified 80/20 split, upsampling applied strictly to the training set to prevent data leakage).
 
 | Metric | Score |
 |---------|--------|
-| Accuracy | 99.90% |
-| Precision | 100.00% |
-| Recall | 100.00% |
-| F1 Score | 100.00% |
-| ROC-AUC | 1.0000 |
+| Accuracy | 98.87% |
+| Precision | 98.00% |
+| Recall | 94.25% |
+| F1 Score | 96.28% |
+| ROC-AUC | 0.9972 |
 
 **Edge-case / adversarial test suite** — 40 hand-crafted messages across 20 fraud categories (OTP scams, phishing, impersonation, obfuscated spam, legitimate transactional messages, etc.), evaluated through the full `analyze_message()` pipeline (ML model + rule engine):
 
 | Metric | Score |
 |---------|--------|
-| Correct classifications | 39 / 40 |
-| Accuracy | 97.5% |
-
-> ⚠️ **Note:** The near-perfect held-out test scores are worth treating with some caution — they likely reflect that fraud/spam and legitimate messages are linguistically quite distinct in this dataset (especially the synthetic Indian fraud samples), rather than the model being flawless on real-world, unseen SMS traffic. The edge-case suite is a more realistic stress test, and its single miss (an impersonation message classified as FRAUD instead of the intended SUSPICIOUS) shows where the rule engine's thresholds could still be tuned.
+| Correct classifications | 37 / 40 |
+| Accuracy | 92.5% |
 
 ---
 
@@ -125,8 +123,9 @@ Evaluated on a held-out test set (1,938 messages, stratified 80/20 split, upsamp
 fraudpayguard/
 │
 ├── FraudPayDetection.ipynb    # Model training & experimentation
-├── fraud_model.pkl            # Trained RandomForest model
+├── fraud_model.pkl            # Trained LogisticRegression model
 ├── fraud_vectorizer.pkl       # Fitted TF-IDF vectorizer
+├── fraud_model_info.txt       # Selected model info & F1 metrics
 │
 ├── Fraud_detection_app.py     # Streamlit UI (entry point)
 ├── model_loader.py            # Loads model + vectorizer
